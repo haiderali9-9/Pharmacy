@@ -102,7 +102,7 @@
  password[strlen(password) - 1] = 0;
  if (!strcmp(acc.password,password)){
  system("COLOR 5f");
- printf("\nYour Password Matched Successfully\n.");
+ printf("\nYour Password Matched Successfully.");
  getUsername(acc.email,acc.username);
  }else{
  system("COLOR 4f");
@@ -141,23 +141,25 @@
  while(fread(&acc,sizeof(acc),1,sc)){
  if(!strcmp(acc.username,user)){
  if(!strcmp(acc.password,pass)){
- printf("---------------------   Welcome To Your Profile   --------------------- ");
+ printf("\t\t\t\t---------------------  Welcome To Your Profile  --------------------- ");
  printf("\n\nWelcome %s",acc.name);
- userfound = true;
- break;
- }
+ 
  }else{
- printf("INVALID PASSWARD");
+ printf("INVALID PASSWORD");
+ }
+ userfound = true;
+ }
  }
  if(userfound == false){
- printf("User Is Not found");
+ printf("\nUser Is Not found");
  }
  fclose(sc);
+ 
  break;
  case 3:
  return 1;
  break;
- }
+ 
  }
  return 0;
  }
