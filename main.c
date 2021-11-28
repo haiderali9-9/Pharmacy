@@ -3,13 +3,22 @@
  #include<windows.h>
  #include<stdbool.h>
  // Store Login Information
- struct Account{
-    char name[40];
+ typedef struct Account{
+    char name[20];
     char email[40];
     char username[40];
-    char password[10]; 
+    char password[20]; 
     char status[10];
- };
+ }LoginManagement;
+ 
+ typedef struct medicine{
+     char name[40];
+     char vendorname[20];
+     char Mfg_Date[15];
+     char Exp_Date[15];
+     int cost;
+     }MedicineManagement;
+ 
  // Function For Taking Email and Generate Username
  char getUsername(char email[40],char username[40]){
  int j;
@@ -19,7 +28,8 @@
  }
  }
  int main(){
- struct Account acc;
+ LoginManagement acc;
+ MedicineManagement med;
  int option; 
  int attherate = false;
  bool symbolpresent = false;
@@ -30,6 +40,7 @@
  int code;
  int i;
  FILE *sc;
+ FILE *mc;
  // Change Color Of Command Line Interface
  system("COLOR 5F");
  printf("\n\n\n\n\t\t\t\t\t\t\" Pharmacy Management System \"");
@@ -70,7 +81,7 @@
  // Get The Password:
  do{
  printf("\nEnter Your Password:\t");
- fgets(acc.password,40,stdin);
+ fgets(acc.password,20,stdin);
  // Remove The trailing zero from the string
  acc.password[strlen(acc.password) - 1] = 0;
  // Check the Password contain Symbol and Digit
@@ -117,6 +128,7 @@
  strcpy(acc.status,"Employee");
  }else if( code == 465){
  strcpy(acc.status,"Customer");
+  
  }
  sc = fopen("Users\\Users.txt","a+");
  fwrite(&acc,sizeof(acc),1,sc);
@@ -134,16 +146,75 @@
  fgets(user,40,stdin);
  user[strlen(user) - 1] = 0;
  printf("Enter Your Password: ");
- fgets(pass,40,stdin);
+ fgets(pass,20,stdin);
  pass[strlen(pass) - 1] = 0;
  // Check Username and Password
  sc =  fopen("Users\\Users.txt","r");
  while(fread(&acc,sizeof(acc),1,sc)){
+    // When two values are equal strcmp return value equal to zero
  if(!strcmp(acc.username,user)){
  if(!strcmp(acc.password,pass)){
- printf("\t\t\t\t---------------------  Welcome To Your Profile  --------------------- ");
- printf("\n\nWelcome %s",acc.name);
+ printf("\t\t\t\t---------------------  Welcome To Your Profile  --------------------- \n");
+ printf("\n\nWelcome %s\n",acc.name);
+ if(!strcmp(acc.status,"Admin")){
+     // Admin Management
+ printf("\t\t\t\t---------------------  Admin ---------------------\n");
  
+ }else if(!strcmp(acc.status,"Employee")){
+     // Employee Management
+ printf("\t\t\t\t---------------------  Employee  --------------------- \n");
+ printf("1: MEDICINE DETAIL\n");
+ printf("2: SUPPLIERS (VENDORS) DETAIL\n");
+ printf("3: PURCHASES\n");
+ printf("Enter Choice: ");
+ scanf("%d",&option);
+ fgetc(stdin);
+ i = 1;
+ switch(option){
+     // Medicine Management
+ case 1:
+ printf("\n\n1:ADD NEW MEDICINE\n");
+ printf("2:TOTAL MEDICINE\n");
+ printf("3:EXPIRY MEDICINE\n");
+ printf("Enter your choice:\n");
+ scanf("%d", &option);
+ fgetc(stdin);
+ switch(option){
+     // Enter Medicine Data
+ case 1:
+ printf("\nEnter The Name of Medicine:");
+ fgets(med.name,20,stdin);
+ med.name[strlen(med.name) - 1] = 0;
+ printf("\nEnter The Supplier(Vendor) Name:");
+ fgets(med.vendorname,20,stdin);
+ med.vendorname[strlen(med.vendorname) - 1] = 0;
+ printf("\nEnter the Retail Date:");
+ fgets(med.Mfg_Date,15,stdin);
+ med.Mfg_Date[strlen(med.Mfg_Date) - 1] = 0;
+ printf("\nEnter the Expiry Date:");
+ fgets(med.Exp_Date,15,stdin);
+ med.Exp_Date[strlen(med.Exp_Date) - 1] = 0;
+ printf("\nEnter the Price:");
+ scanf("%d",&med.cost);
+ mc = fopen("Medicine\\Medicine.txt","a+");
+ fwrite(&med, sizeof(med),1,mc);
+ fclose(mc);
+ break;
+ // Total Medicine
+ case 2:
+ printf("Id\t\tMedicine Name\t\tSupplier Name\t\tRetail Date\t\tExpiry Date\t\tprice\n");
+ mc = fopen("Medicine\\Medicine.txt", "r");
+ while(fread(&med,sizeof(med),1,mc) == 1){
+ printf("%d%25s%25s%25s%25s%d\n",i,med.name,med.vendorname,med.Mfg_Date,med.Exp_Date,med.cost);
+ i++;
+ }
+ fclose(sc);
+ break;
+ // Expiry Medicine
+
+ }}}else if(!strcmp(acc.status,"Customer")){
+ printf("\t\t\t\t---------------------  Customer  --------------------- ");
+ }
  }else{
  printf("INVALID PASSWORD");
  }
@@ -154,13 +225,13 @@
  printf("\nUser Is Not found");
  }
  fclose(sc);
- 
  break;
  case 3:
  return 1;
  break;
- 
  }
+ 
+ 
  return 0;
  }
 
