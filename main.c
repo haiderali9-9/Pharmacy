@@ -2,6 +2,7 @@
  #include<string.h>
  #include<windows.h>
  #include<stdbool.h>
+ #include<stdlib.h>
  // Store Login Information
  typedef struct Account{
     char name[20];
@@ -12,10 +13,13 @@
  }LoginManagement;
  
  typedef struct medicine{
+     int medicineid;
      char name[40];
-     char vendorname[20];
+     int cabnitno;
+     char companyname[20];
      char Mfg_Date[15];
      char Exp_Date[15];
+     int quantity;
      int cost;
      }MedicineManagement;
  
@@ -28,8 +32,16 @@
  }
  }
  int main(){
+ SYSTEMTIME d;
+ GetSystemTime(&d);
+ // current day
+ int day = d.wDay;
+ int month = d.wMonth;
+ int year = d.wYear;
+ 
  LoginManagement acc;
  MedicineManagement med;
+
  int option; 
  int attherate = false;
  bool symbolpresent = false;
@@ -176,43 +188,106 @@
  printf("\n\n1:ADD NEW MEDICINE\n");
  printf("2:TOTAL MEDICINE\n");
  printf("3:EXPIRY MEDICINE\n");
+ printf("4:Out Of Stock MEDICINE\n")
  printf("Enter your choice:\n");
  scanf("%d", &option);
  fgetc(stdin);
+ char ch;
+ char *token;
+ int token1;
+ int token2;
+ int token3;
  switch(option){
-     // Enter Medicine Data
+  // Enter Medicine Data
  case 1:
- printf("\nEnter The Name of Medicine:");
+ do{
+     // Enter Medicine ID
+ printf("\nEnter The MEDICINE ID:");
+ scanf("%d",&med.medicineid);
+ fflush(stdin);
+    // Enter Medicine Name
+ printf("\nEnter The MEDICINE NAME:");
  fgets(med.name,20,stdin);
  med.name[strlen(med.name) - 1] = 0;
- printf("\nEnter The Supplier(Vendor) Name:");
- fgets(med.vendorname,20,stdin);
- med.vendorname[strlen(med.vendorname) - 1] = 0;
- printf("\nEnter the Retail Date:");
+    // Enter Medicine Cabinet Number
+ printf("\nEnter the MEDICINE CABNIT NUMBER:");
+ scanf("%d",&med.cabnitno);
+ fflush(stdin);
+    // Enter Medicine Company Number
+ printf("\nEnter The MEDICINE COMPANY NAME:");
+ fgets(med.companyname,20,stdin);
+ med.companyname[strlen(med.companyname) - 1] = 0;
+    // Enter Manufacturin Date
+ printf("\nEnter the MEDICINE MFG_DATE:");
  fgets(med.Mfg_Date,15,stdin);
  med.Mfg_Date[strlen(med.Mfg_Date) - 1] = 0;
- printf("\nEnter the Expiry Date:");
+    // Enter Expiry Date
+ printf("\nEnter the MEDICINE EXP_DATE:");
  fgets(med.Exp_Date,15,stdin);
  med.Exp_Date[strlen(med.Exp_Date) - 1] = 0;
- printf("\nEnter the Price:");
+    // Enter Medicine Quantity
+ printf("\nEnter the MEDICINE QUANTITY:");
+ scanf("%d",&med.quantity);
+    // Enter Medicine Cost
+ printf("\nEnter the MEDICINE COST:");
  scanf("%d",&med.cost);
+ printf("\nEnter A to ADD MORE medicine OR Y to EXIST.");
+ scanf(" %c",&ch);
  mc = fopen("Medicine\\Medicine.txt","a+");
  fwrite(&med, sizeof(med),1,mc);
  fclose(mc);
+ }while(ch == 'A');
  break;
- // Total Medicine
+ // Display Total Medicine
  case 2:
- printf("Id\t\tMedicine Name\t\tSupplier Name\t\tRetail Date\t\tExpiry Date\t\tprice\n");
+ printf("ID\tMED-ID\tMED-NAME\tCAB-NUM\tCOMY-NAME\tMFG_DATE\tEXP_DATE\tPRICE\tQUANTITY\n");
  mc = fopen("Medicine\\Medicine.txt", "r");
  while(fread(&med,sizeof(med),1,mc) == 1){
- printf("%d%25s%25s%25s%25s%d\n",i,med.name,med.vendorname,med.Mfg_Date,med.Exp_Date,med.cost);
+ printf("%d\t%d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n",i,med.medicineid,med.name,med.cabnitno,med.companyname,med.Mfg_Date,med.Exp_Date,med.cost,med.quantity);
  i++;
  }
- fclose(sc);
+ fclose(mc);
  break;
  // Expiry Medicine
-
- }}}else if(!strcmp(acc.status,"Customer")){
+ case 3: 
+ mc = fopen("Medicine\\Medicine.txt", "r");
+ while(fread(&med,sizeof(med),1,mc) == 1){
+ //Separate Expiry Date into Token
+ token = strtok(med.Exp_Date,"-");
+ //atoi is used to Convert Pointer of string into integer
+ token1 = atoi(token);
+ for ( i = 1; token != NULL; i++) {
+ token = strtok(NULL,"-");
+ if(i ==1){
+ token2 = atoi(token);1
+ }else if( i ==2){
+ token3 = atoi(token);
+ }
+ }
+ // Compare for expiry date
+ if((token3 == year)||(token3 < year) && token1 < month && token2 < day){
+ printf("%d\t%d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n",i,med.medicineid,med.name,med.cabnitno,med.companyname,med.Mfg_Date,med.Exp_Date,med.cost,med.quantity);
+ i++;
+ }}
+ fclose(mc);
+ break;
+ case 4:
+ mc = fopen("Medicine\\Medicine.txt", "r");
+ while(fread(&med,sizeof(med),1,mc) == 1){
+ if(med.quantity <=10){
+ // out of stock medicine
+ printf("%d\t%d\t%s\t%d\t%s\t%s\t%s\t%d\t%d\n",i,med.medicineid,med.name,med.cabnitno,med.companyname,med.Mfg_Date,med.Exp_Date,med.cost,med.quantity);
+ i++;
+ }}
+ break;
+ }  
+// Supplier Date
+case 2:
+ printf("1:Enter New Supplier:");
+ printf("2:Total Supplier:");
+ 
+ 
+ }}else if(!strcmp(acc.status,"Customer")){
  printf("\t\t\t\t---------------------  Customer  --------------------- ");
  }
  }else{
