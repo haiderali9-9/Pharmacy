@@ -197,6 +197,7 @@ typedef struct Account{
  char medi[20];
  int i;
  FILE *sc;
+ FILE *sc2;
  FILE *mc;
  FILE *mc2;
  FILE *sp;
@@ -268,18 +269,19 @@ typedef struct Account{
  printf("\n2:TOTAL SUPPLIER");
  printf("\n3:EDIT EMPLOYEE SALARY");
  printf("\n4:EMPLOYEE SALARY");
- printf("\n5:BACK");
+ printf("\n5:REMOVE EMPLOYEE");
+ printf("\n6:BACK");
  printf("\nEnter choice:");
  scanf("%d",&option);
  fflush(stdin);
  switch(option){
  case 1:
  do{system("cls");
- printf("\nID\tMED-NAME\tCOMY-NAME\tMFG_DATE\tEXP_DATE\tCAB-Name\tPRICE\t\tQUANTITY\n");
+ printf("%-5s%-20s%-20s%-20s%-20s%-20s%-20s%-20s\n","ID","MED-NAME","COMY-NAME","MFG_DATE","EXP_DATE","CAB-Name","PRICE","QUANTITY");
  mc = fopen("Medicine\\Medicine.txt", "r");
  i = 1;
  while(fread(&med,sizeof(med),1,mc) == 1){
- printf("%d\t%s\t%s\t\t%s\t%s\t%s\t\t%s\t\t%s\n",i,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);
+ printf("%-5d%-20s%-20s%-20s%-20s%-20s%-20s%-20s\n",i,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);
  i++;
  }
  fclose(mc);
@@ -289,11 +291,11 @@ typedef struct Account{
  case 2:
  do{
  system("cls");
- printf("\nID\tSUPPLIER-NAME\tPHONE NUMBER\tEMAIL\t\t\tMEDICINE SUPPLIED\tMEDICINEQUANTITY\n");
+ printf("%-5s%-20s%-20s%-40s%-20s%-20s\n","ID","SUPPLIER NAME","PHONE NUMBER","EMAIL","MEDICINE SUPPLIED","MEDICINE QUANTITY");
  sp = fopen("Supplier\\Supplier.txt", "r");
  i = 1;
  while(fread(&sup,sizeof(sup),1,sp) == 1){
- printf("%d\t%s\t%s\t%s\t%s\t\t%s\n",i,sup.name,sup.mobilenumber,sup.email,sup.medicinesupplied,sup.quantitysupplied);
+ printf("%-5d%-20s%-20s%-40s%-20s%-20s\n",i,sup.name,sup.mobilenumber,sup.email,sup.medicinesupplied,sup.quantitysupplied);
  i++;
  }
  fclose(sp);
@@ -307,6 +309,7 @@ typedef struct Account{
  fflush(stdin);
  int offset = 0 , pos = 0;
  sc = fopen("Users\\Users.txt","r+");
+ bool salaryupdate = false;
  while(fread(&acc,sizeof(acc),1,sc) == 1){
  offset = (300 * pos);
  if((!stricmp(acc.name,medi)) && (!stricmp(acc.status,"Employee"))){
@@ -318,21 +321,26 @@ typedef struct Account{
  for( i = strlen(acc.salary); i < length;i++){
  fputc('\0',sc);
  }
+ salaryupdate = true;
  break;
- } 
+ }
  pos++;
+ }
+ if(salaryupdate == false){
+ printf("Employee Not Found:");
+ Beep(800,1200);
  }
  fclose(sc);
  break;
  case 4:
  do{
  system("cls");
- printf("\nID\tEMPLOYEE NAME\tEMPLOYEE SALARY\n");
+ printf("%-5s%-20s%-20s\n","ID","EMPLOYEE NAME","EMPLOYEE SALARY");
  sc = fopen("Users\\Users.txt", "r");
  i = 1;
  while(fread(&acc,sizeof(acc),1,sc) == 1){ 
  if(!stricmp(acc.status,"Employee")){
- printf("%d\t%s\t\t%s\n",i,acc.name,acc.salary);
+ printf("%-5s%-20s%-20s",i,acc.name,acc.salary);
  i++;
  }
  }
@@ -340,7 +348,32 @@ typedef struct Account{
  ch = getch();
  }while( ch != '\r');
  break;
- }} while(option != 5);
+ case 5:
+ printf("\nEnter the Employee Name to remove:");
+ input(medi);
+ bool employeedelet = false;
+ sc = fopen("Users\\Users.txt", "r");
+ sc2 = fopen("Users\\Users2.txt","a");
+ while(fread(&acc,sizeof(acc),1,sc) == 1){
+ if((stricmp(acc.name,medi) != 0 ) && (stricmp(acc.status,"Employee") != 0)){
+ fwrite(&acc,sizeof(acc),1,sc2);
+ }else{
+ employeedelet = true;
+ }
+ }
+ fclose(sc);
+ fclose(sc2);
+ remove("Users\\Users.txt");
+ rename("Users\\Users2.txt","Users\\Users.txt");
+ if( employeedelet == true){
+ printf("Employee Deleted Successfully");
+ Beep(500,1200);
+ }else{
+ printf("EMPLOYEE NOT FOUND");
+ Beep(500,1200);
+ } 
+ break;
+ }} while(option != 6);
  break;
  }else if(!strcmp(acc.status,"Employee")){
  do{
@@ -353,8 +386,7 @@ typedef struct Account{
  printf("\n\n\nEnter Your Operation:");
  printf("\n1: MEDICINE DETAILS\n");
  printf("2: SUPPLIERS DETAILS\n");
- printf("3: PURCHASES DETAILS\n");
- printf("4: BACK\n");
+ printf("3: BACK\n");
  printf("Enter Choice: ");
  scanf("%d",&option);
  fflush(stdin);
@@ -521,8 +553,8 @@ typedef struct Account{
  system("cls");
  printf("Enter the Medicine Name you want to search:");
  gets(medi);
+ fflush(stdin);
  bool medicinepresent = false;
- 
  mc = fopen("Medicine\\Medicine.txt", "r");
  while(fread(&med,sizeof(med),1,mc) == 1){
  if(strcmp(med.name,medi) == 0){
@@ -538,7 +570,6 @@ typedef struct Account{
  }
  fclose(mc);
  ch = getch();
- 
  }while(ch != '\r');
  break;
  case 6:
@@ -566,17 +597,17 @@ typedef struct Account{
  }
  }
  if(year > year1){
- printf("%d\t%s\t%s\t\t%s\t%s\t%s\t\t%s\t\t%s\n",count,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);	
+ printf("%d\t%s\t%s\t%s\t%s\t%s\t\t%s\t\t%s\n",count,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);	
  expiredmedicine = true;
  count++;
  }
  if((year <= year1) && (month > month1)){
- printf("%d\t%s\t%s\t\t%s\t%s\t%s\t\t%s\t\t%s\n",count,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);	
+ printf("%d\t%s\t%s\t%s\t%s\t%s\t\t%s\t\t%s\n",count,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);	
  expiredmedicine = true;
  count++;
  }
  if((month >= month1) && (day > day1)){
- printf("%d\t%s\t%s\t\t%s\t%s\t%s\t\t%s\t\t%s\n",count,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);
+ printf("%d\t%s\t%s\t%s\t%s\t%s\t\t%s\t\t%s\n",count,med.name,med.companyname,med.Mfg_Date,med.Exp_Date,med.cabnitno,med.cost,med.quantity);
  expiredmedicine = true;
  count++;
  }
@@ -642,8 +673,8 @@ typedef struct Account{
  sp2 = fopen("Supplier\\Supplier2.txt","a");
  while(fread(&sup,sizeof(sup),1,sp) == 1){
  if(strcmp(sup.name,medi) != 0){
- fwrite(&sup,sizeof(sup),1,sp2);
  removemed = true;
+ fwrite(&sup,sizeof(sup),1,sp2);
  }
  }
  fclose(sp);
@@ -653,7 +684,7 @@ typedef struct Account{
  if(removemed == true){
  printf("Supplier Deleted Successfully");
  }else{
-	printf("Supplier Not Deleted");
+	printf("Supplier Not Deleted.");
  }
  Beep(500,800);
  break;
@@ -673,7 +704,7 @@ typedef struct Account{
  printf("\n2:Phone Number");
  printf("\n3:Email");
  printf("\n4:Medicine Supplied");
- printf("\n5:Medicine Quantity");
+ printf("\n5:Medicine Supplied");
  printf("\nEnter choice:");
  input(medi);
  fflush(stdin);
@@ -708,8 +739,8 @@ typedef struct Account{
  }
  break;
  // New Medicine Supplied:
- }else if(stricmp(medi,"Medicine Supplied") == 0){
- printf("Enter the New Medicine Supplied:");
+ }else if(stricmp(medi,"Quantity Supplied") == 0){
+ printf("Enter the New Quantity Supplied:");
  input(medi);
  fseek(sp,offset + 150,SEEK_SET);
  fputs(medi,sp);
@@ -737,13 +768,13 @@ typedef struct Account{
  printf("SUPPLIER UPDATED SUCCESSFULLY");
  Beep(500,2000);	
  }
- fclose(mc);
+ fclose(sp);
  break;
  //Update Supplier
  case 4:
  do{
  system("cls");
- printf("\nID\tSUPPLIER-NAME\tPHONE NUMBER\tEMAIL\t\t\t\tMEDICINE SUPPLIED\tMEDICINEQUANTITY\n");
+ printf("\nID\tSUPPLIER-NAME\tPHONE NUMBER\tEMAIL\t\t\tMEDICINE SUPPLIED\tMEDICINEQUANTITY\n");
  sp = fopen("Supplier\\Supplier.txt", "r");
  i = 1;
  while(fread(&sup,sizeof(sup),1,sp) == 1){
@@ -757,13 +788,12 @@ typedef struct Account{
  }}while( option != 6);
  break;
  }
- }while(option != 4);
+ }while(option != 3);
  break;
  }else if(!strcmp(acc.status,"Customer")){
  printf("\t\t\t\t---------------------  Customer  --------------------- ");
  }
  }
- 
  }
  }
  if(userfound == false){
