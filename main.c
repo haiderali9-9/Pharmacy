@@ -229,8 +229,6 @@
  memset(&medi,0, sizeof medi);
  system("cls");
  system("COLOR 5F");
- gotoxy(100,5);
- printf("%d/%d/%d",d.wMonth,d.wDay,d.wYear);  
  gotoxy(50,10);
  printf("Pharmacy Management System");
  gotoxy(43,12);
